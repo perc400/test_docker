@@ -1,18 +1,19 @@
-FROM registry.suse.com/suse/sle15:15.3
-LABEL maintainer="Michele Bologna <michele.bologna@suse.com>"
-LABEL name="SUSE Manager apache build profile"
-LABEL version="3.0.1-20220125"
+# Используем официальный образ Ubuntu в качестве базового
+FROM ubuntu:20.04
 
-ARG repo
-ARG cert
+# Устанавливаем Apache и необходимые утилиты
+RUN apt-get update && \
+    apt-get install -y apache2 && \
+    apt-get clean
 
-USER root
+# Копируем конфигурационные файлы, если они у вас есть (опционально)
+# ADD my_custom_apache_config.conf /etc/apache2/sites-available/000-default.conf
 
-ADD add_packages.sh /root/add_packages.sh
-RUN chmod +x /root/add_packages.sh && /root/add_packages.sh
+# Открываем порт 80 для доступа к Apache
+EXPOSE 80
 
-ADD pub.conf /etc/apache2/conf.d/pub.conf
-RUN mkdir -p /srv/www/htdocs/pub/
-ADD index.html /srv/www/htdocs/pub/index.html
+# Копируем ваш HTML файл в директорию для публичных веб-страниц Apache
+ADD index.html /var/www/html/
 
-CMD ["/usr/sbin/start_apache2", "-DFOREGROUND", "-k", "start"]
+# Команда запуска Apache в фоновом режиме
+CMD ["apache2ctl", "-D", "FOREGROUND"]
