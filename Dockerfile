@@ -8,6 +8,9 @@ ARG cert
 
 USER root
 
+RUN zypper --non-interactive ref && \
+    zypper --non-interactive install git
+
 RUN echo "$cert" > /etc/pki/trust/anchors/RHN-ORG-TRUSTED-SSL-CERT.pem && update-ca-certificates
 RUN git config --global http.sslVerify false  # Отключение проверки сертификата
 RUN echo "$repo" > /etc/zypp/repos.d/susemanager:dockerbuild.repo
